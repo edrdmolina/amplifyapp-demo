@@ -35,6 +35,11 @@ This README.md file contains the step-by-step instructions on how to create a Fu
 - [Run the app](#4-4)
 
 5- Add Storage
+- [Create the storage service](#5-1)
+- [Update the GraphQL Schema](#5-2)
+- [Deploy storage service and API updates](#5-3)
+- [Update the React app](#5-4)
+- [Run the app](#5-5)
 
 <br>
 
@@ -584,6 +589,157 @@ There are 3 main functions in our app:
 <br>
 
 <h2 id="4-4">Run the app</h2>
+
+---
+To test out the app, run the start command:
+
+<br>
+
+    npm start
+
+<br>
+
+<h2 id="5-1">Create the storage service</h2>
+
+---
+To add image storage functionality, we'll use the Amplify storage category:
+
+<br>
+
+    amplify add storage
+
+    ? Please select from one of the below mentioned services: Content
+    ? Please provide a friendly name for your resource that will be used to label this category in the project: imagestorage
+    ? Please provide bucket name: <your-unique-bucket-name>
+    ? Who should have access: Auth users only
+    ? What kind of access do you want for Authenticated users? create, read, update, delete
+    ? Do you want to add a Lambda Trigger for your S3 Bucket? N
+
+To select access options use the arrow keys and space bar.
+<br>
+
+
+<h2 id="5-2">Update the GraphQL schema</h2>
+
+---
+Next, open <strong>amplify/backend/api/notesapp/schema.graphql</strong> and update it with the following schema:
+
+<br>
+
+    type Note @model {
+        id: ID!
+        name: String!
+        description: String
+        image: String
+    }
+
+<br>
+
+<h2 id="5-3">Deploy storage service and API updates</h2>
+
+---
+Now that the storage service has been configured locally and we've updated the GraphQL schema, we can deploy the updates by running the Amplify push command:
+
+<br>
+
+    amplify push -y
+
+<br>
+
+<h2 id="5-4">Update the React app</h2>
+
+---
+Now that the backend has been updated, let's update the React app to add the functionality to upload and view images for a note. Open src/App.js and make the following changes.
+
+a. First add the Storage class to your Amplify imports:
+
+<br>
+
+    import { API, Storage } from 'aws-amplify';
+
+<br>
+
+b. In the main App function, create a new onChange function to handle the image upload:
+
+<br>
+
+    async function onChange(e) {
+        if (!e.target.files[0]) return
+        const file = e.target.files[0];
+        setFormData({ ...formData, image: file.name });
+        await Storage.put(file.name, file);
+        fetchNotes();
+    }
+
+<br>
+
+c. Update the fetchNotes function to fetch an image if there is an image associated with a note:
+
+<br>
+
+    async function fetchNotes() {
+        const apiData = await API.graphql({ query: listNotes });
+        const notesFromAPI = apiData.data.listNotes.items;
+        await Promise.all(notesFromAPI.map(async note => {
+            if (note.image) {
+                const image = await Storage.get(note.image);
+                note.image = image;
+            }
+            return note;
+        }))
+        setNotes(apiData.data.listNotes.items);
+    }
+
+<br>
+
+d. Update the createNote function to add the image to the local image array if an image is associated with the note:
+
+<br>
+
+    async function createNote() {
+        if (!formData.name || !formData.description) return;
+        await API.graphql({ query: createNoteMutation, variables: { input: formData } });
+        if (formData.image) {
+            const image = await Storage.get(formData.image);
+            formData.image = image;
+        }
+        setNotes([ ...notes, formData ]);
+        setFormData(initialFormState);
+    }
+
+<br>
+
+e. Add an additional input to the form in the return block:
+
+<br>
+
+    <input
+        type="file"
+        onChange={onChange}
+    />
+
+<br>
+
+f. When mapping over the notes array, render an image if it exists:
+
+<br>
+
+    {
+        notes.map(note => (
+            <div key={note.id || note.name}>
+                <h2>{note.name}</h2>
+                <p>{note.description}</p>
+                <button onClick={() => deleteNote(note)}>Delete note</button>
+                {
+                    note.image && <img src={note.image} style={{width: 400}} alt={note.description} />
+                }
+            </div>
+        ))
+    }
+
+<br>
+
+<h2 id="5-5">Run the app</h2>
 
 ---
 To test out the app, run the start command:
