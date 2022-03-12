@@ -1,25 +1,24 @@
-import logo from './logo.svg';
+import React from 'react';
 import './App.css';
+import { Authenticator } from '@aws-amplify/ui-react';
+import '@aws-amplify/ui-react/styles.css';
+
+import { Amplify } from 'aws-amplify';
+import config from './aws-exports';
+Amplify.configure(config);
+
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Welcome to V2
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+return (
+    <Authenticator>
+        {({ signOut, user }) => (
+            <main>
+                <h1>Hello {user.username}</h1>
+                <button onClick={signOut}>Sign out</button>
+            </main>
+        )}
+    </Authenticator>
+);
 }
 
 export default App;
