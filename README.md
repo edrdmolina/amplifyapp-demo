@@ -29,6 +29,10 @@ This README.md file contains the step-by-step instructions on how to create a Fu
 - [Deploy the changes to the live environment](#3-8)
 
 4- Add API and Database
+- [Create a GraphQL API and database](#4-1)
+- [Deploy the API](#4-2)
+- [Write front-end code to interact with the API](#4-3)
+- [Run the app](#4-4)
 
 5- Add Storage
 
@@ -404,5 +408,187 @@ Now head back to your local terminal window and deploy the changes to GitHub to 
     git add .
     git commit -m “added auth”
     git push origin master
+
+<br>
+
+<h2 id="4-1">Create a GraphQL API and database</h2>
+
+---
+a. Add a GraphQL API to your app by running the the following command from the root of your app directory:
+
+<br>
+
+    amplify add api
+
+    ? Please select from one of the below mentioned services: GraphQL
+    ? Provide API name: notesapp
+    ? Choose the default authorization type for the API: API Key
+    ? Enter a description for the API key: demo
+    ? After how many days from now the API key should expire: 7 (or your preferred expiration)
+    ? Do you want to configure advanced settings for the GraphQL API: No, I am done.
+    ? Do you have an annotated GraphQL schema?  No
+    ? Do you want a guided schema creation?  Yes
+    ? What best describes your project: Single object with fields
+    ? Do you want to edit the schema now? Yes
+
+<br>
+
+b. Open the GraphQL schema in your text editor: <strong>amplify/backend/api/myapi/schema.graphql</strong>.
+Update the file with the following schema:
+
+<br>
+
+    type Note @model {
+    id: ID!
+    name: String!
+    description: String
+    }
+
+<br>
+
+c. Save the file. Then go back to the command line and hit enter to complete the API configuration step.
+
+<br>
+
+<h2 id="4-2">Deploy the API</h2>
+
+---
+Now that the API has been configured locally it is time to deploy it. To do so, run the Amplify push command:
+
+<br>
+
+    amplify push -y
+
+<br>
+
+This will do 3 things:
+1- Create the AppSync API
+2- Create a DynamoDB table
+3- Create the local GraphQL operations in a folder located at src/graphql that can use to query the API
+
+To view the GraphQL API in your account at any time, run the following command:
+
+<br>
+
+    amplify console api
+
+    > Choose GraphQL
+
+<br>
+
+To view the Amplify app in your account at any time, run the following command:
+
+<br>
+
+    amplify console
+
+<br>
+
+<h2 id="4-3">Write front-end code to interact with the API</h2>
+
+---
+Now that the back end has been deployed, let's write some code to allow users to create, list, and delete notes.
+
+Update <strong>src/App.js</strong> with the following code:
+
+<br>
+
+    import React, { useState, useEffect } from 'react';
+    import './App.css';
+    import { Authenticator } from '@aws-amplify/ui-react';
+    import '@aws-amplify/ui-react/styles.css';
+
+    import { Amplify, API } from 'aws-amplify';
+    import config from './aws-exports';
+    Amplify.configure(config);
+
+    import { listNotes } from './graphql/queries';
+    import { createNote as createNoteMutation, deleteNote as deleteNoteMutation } from './graphql/mutations';
+
+    const initialFormState = { name: '', description: '' }
+
+    function App() {
+        const [notes, setNotes] = useState([]);
+        const [formData, setFormData] = useState(initialFormState);
+
+        useEffect(() => {
+            fetchNotes();
+        }, []);
+
+        async function fetchNotes() {
+            const apiData = await API.graphql({ query: listNotes });
+            setNotes(apiData.data.listNotes.items);
+        }
+
+        async function createNote() {
+            if (!formData.name || !formData.description) return;
+            await API.graphql({ query: createNoteMutation, variables: { input: formData } });
+            setNotes([ ...notes, formData ]);
+            setFormData(initialFormState);
+        }
+
+        async function deleteNote({ id }) {
+            const newNotesArray = notes.filter(note => note.id !== id);
+            setNotes(newNotesArray);
+            await API.graphql({ query: deleteNoteMutation, variables: { input: { id } }});
+        }
+
+        return (
+            <Authenticator>
+                {({ signOut, user }) => (
+                    <main>
+                        <h1>Hello {user.username}</h1>
+                        <button onClick={signOut}>Sign out</button>
+                        <h1>My Notes App</h1>
+                        <input
+                            onChange={e => setFormData({ ...formData, 'name': e.target.value})}
+                            placeholder="Note name"
+                            value={formData.name}
+                        />
+                        <input
+                            onChange={e => setFormData({ ...formData, 'description': e.target.value})}
+                            placeholder="Note description"
+                            value={formData.description}
+                        />
+                        <button onClick={createNote}>Create Note</button>
+                        <div style={{marginBottom: 30}}>
+                            {
+                            notes.map(note => (
+                                <div key={note.id || note.name}>
+                                <h2>{note.name}</h2>
+                                <p>{note.description}</p>
+                                <button onClick={() => deleteNote(note)}>Delete note</button>
+                                </div>
+                            ))
+                            }
+                        </div>
+                    </main>
+                )}
+            </Authenticator>
+        );
+    }
+
+    export default App;
+
+<br>
+
+There are 3 main functions in our app:
+
+1- fetchNotes - This function uses the API class to send a query to the GraphQL API and retrieve a list of notes.
+
+2- createNote - This function also uses the API class to send a mutation to the GraphQL API, the main difference is that in this function we are passing in the variables needed for a GraphQL mutation so that we can create a new note with the form data.
+
+3- deleteNote - Like createNote, this function is sending a GraphQL mutation along with some variables, but instead of creating a note we are deleting a note.
+
+<br>
+
+<h2 id="4-4">Run the app</h2>
+
+---
+To test out the app, run the start command:
+
+<br>
+
+    npm start
 
 <br>
