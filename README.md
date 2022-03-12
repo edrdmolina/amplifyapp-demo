@@ -41,6 +41,10 @@ This README.md file contains the step-by-step instructions on how to create a Fu
 - [Update the React app](#5-4)
 - [Run the app](#5-5)
 
+6- Deleting the resources
+- [Removing individual services](#6-1)
+- [Deleting the entire project](#6-2)
+
 <br>
 
 <h2 id="1-1">Create a new React Application</h2>
@@ -747,5 +751,37 @@ To test out the app, run the start command:
 <br>
 
     npm start
+
+<br>
+
+<h2 id="6-1">Removing individual services<h2>
+
+---
+To remove individual services, you can use the Amplify remove command
+
+<br>
+
+    amplify remove auth
+
+    ? Choose the resource you would want to remove: <your-service-name>
+
+<br>
+
+Then run the Amplify push command:
+
+<br>
+
+    amplify push
+
+<br>
+
+<h2 id="6-2">Deleting the entire project<h2>
+
+---
+To delete the project and the associated resources, you can run the Amplify delete command:
+
+<br>
+
+    amplify delete
 
 <br>
