@@ -8,10 +8,10 @@
       "enableiterativegsiupdates": true,
       "secondarykeyasgsi": true,
       "skipoverridemutationinputtypes": true,
-      "transformerversion": 2,
-      "suppressschemamigrationprompt": true,
-      "securityenhancementnotification": false,
-      "showfieldauthnotification": false
+      // "transformerversion": 2,
+      // "suppressschemamigrationprompt": true,
+      // "securityenhancementnotification": false,
+      // "showfieldauthnotification": false
     },
     "frontend-ios": {
       "enablexcodeintegration": true
@@ -21,7 +21,7 @@
       "useinclusiveterminology": true,
       "breakcirculardependency": true,
       "forcealiasattributes": false,
-      "useenabledmfas": true
+      // "useenabledmfas": true
     },
     "codegen": {
       "useappsyncmodelgenplugin": true,
