@@ -53,6 +53,7 @@ Open your Github account and create a new repository. Then on your terminal with
     git remote add origin git@github.com:username/reponame.git
     git add .
     git commit -m “initial commit”
+    git branch -M master
     git push origin master
 
 <br>
