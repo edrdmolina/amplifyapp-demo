@@ -411,6 +411,7 @@ Next, update your front end branch to point to the backend environment you just 
 
 <img src="https://d1.awsstatic.com/webteam/getting_started/GSRC%202020%20updates/Front%20End/Front%20End%20React%20-%20New%20Module3%20-%202.879da73c11bf6b7af1c481496e1a2eb1fd678e91.png" />
 
+Make sure not to unselect auto deploy!
 <br>
 
 <h2 id="3-8">Deploy the changes to the live environment</h2>
