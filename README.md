@@ -371,20 +371,26 @@ This will open the Amplify Console inside AWS. From the navigation sidebar, choo
 <br>
 
     version: 1
+    env:
+    variables:
+        VERSION_AMPLIFY: 7.6.23
     backend:
     phases:
+        preBuild:
+        commands: 
+            - npm i -g @aws-amplify/cli@7.6.23
         build:
         commands:
             - '# Execute Amplify CLI with the helper script'
             - amplifyPush --simple
     frontend:
-    phases:
-        preBuild:
-        commands:
-            - yarn install
-        build:
-        commands:
-            - yarn run build
+        phases:
+            preBuild:
+            commands:
+                - yarn install
+            build:
+            commands:
+                - yarn run build
     artifacts:
         baseDirectory: build
         files:
