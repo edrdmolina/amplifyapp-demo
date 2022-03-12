@@ -439,9 +439,9 @@ Update the file with the following schema:
 <br>
 
     type Note @model {
-    id: ID!
-    name: String!
-    description: String
+        id: ID!
+        name: String!
+        description: String
     }
 
 <br>
@@ -500,10 +500,11 @@ Update <strong>src/App.js</strong> with the following code:
 
     import { Amplify, API } from 'aws-amplify';
     import config from './aws-exports';
-    Amplify.configure(config);
 
     import { listNotes } from './graphql/queries';
     import { createNote as createNoteMutation, deleteNote as deleteNoteMutation } from './graphql/mutations';
+
+    Amplify.configure(config);
 
     const initialFormState = { name: '', description: '' }
 

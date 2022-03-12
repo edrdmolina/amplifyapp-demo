@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "serviceConfiguration": {
+    "apiName": "notesapp",
+    "serviceName": "AppSync",
+    "gqlSchemaPath": "/home/edrdmolina/Learning-aws-amplify/amplifyapp/amplify/backend/api/notesapp/schema.graphql",
+    "defaultAuthType": {
+      "mode": "API_KEY",
+      "expirationTime": 7,
+      "apiKeyExpirationDate": "2022-03-19T20:27:46.066Z",
+      "keyDescription": "demo"
+    }
+  }
+}
